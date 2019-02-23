@@ -10,7 +10,7 @@ public class Character : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        IdleState();
+        ChangeState(eState.IDLE);
     }
 
     // Update is called once per frame
@@ -20,11 +20,48 @@ public class Character : MonoBehaviour
 
     // 상태
 
+    public enum eState
+    {
+        IDLE,
+        WAIT,
+        KICK,
+    }
+    eState _state = eState.IDLE;
+
+    public void ChangeState(eState state)
+    {
+        _state = state;
+        switch (state)
+        {
+            case eState.IDLE:
+                IdleState();
+                break;
+            case eState.WAIT:
+                WaitState();
+                break;
+            case eState.KICK:
+                KickState();
+                break;
+        }
+    }
+
+    public eState GetState()
+    {
+        return _state;
+    }
+
     void IdleState()
     {
-        string triggerName = "idle1";
-        int randValue = Random.Range(1, 6);
-        triggerName = "idle" + randValue;
-        _animator.SetTrigger(triggerName);
+        _animator.SetTrigger("idle1");
+    }
+
+    void WaitState()
+    {
+        _animator.SetTrigger("idle2");
+    }
+
+    void KickState()
+    {
+        _animator.SetTrigger("idle5");
     }
 }
