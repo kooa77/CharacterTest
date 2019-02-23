@@ -1099,7 +1099,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1995b16c7dd126e4a8017e8365e51e22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _character: {fileID: 1352447835}
+  _animator: {fileID: 1423298785}
 --- !u!1 &1352447833
 GameObject:
   m_ObjectHideFlags: 0
@@ -1144,7 +1144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bd931907de47b54bb9aedc505cf7985, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animator: {fileID: 1423298785}
+  _animationController: {fileID: 1187421941}
 --- !u!95 &1423298785 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 9500000, guid: 8f0565f23a2b58541a475bd3c1393052,

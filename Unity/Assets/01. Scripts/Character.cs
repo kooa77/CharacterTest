@@ -5,13 +5,23 @@ using UnityEngine;
 public class Character : MonoBehaviour
 {
     // CharacterController를 _animator 에 세팅
-    [SerializeField] Animator _animator;
+    [SerializeField] AnimationController _animationController;
 
     // Start is called before the first frame update
     void Start()
     {
+        /*
+        _animationController.AddEndEvent(()=>
+        {
+            Debug.Log("Animation Test");
+            // Idle -> Wait
+            // Wait -> Kick
+            // Kick -> Idle
+        });
+        */
         ChangeState(eState.IDLE);
     }
+
 
     // Update is called once per frame
     void Update()
@@ -20,17 +30,15 @@ public class Character : MonoBehaviour
 
     // 상태
 
-    public enum eState
+    enum eState
     {
         IDLE,
         WAIT,
         KICK,
     }
-    eState _state = eState.IDLE;
-
-    public void ChangeState(eState state)
+    
+    void ChangeState(eState state)
     {
-        _state = state;
         switch (state)
         {
             case eState.IDLE:
@@ -45,23 +53,30 @@ public class Character : MonoBehaviour
         }
     }
 
-    public eState GetState()
-    {
-        return _state;
-    }
-
     void IdleState()
     {
-        _animator.SetTrigger("idle1");
+        //_animator.SetTrigger("idle1");
+        _animationController.Play("idle1", () =>
+        {
+            WaitState();
+        });
     }
 
     void WaitState()
     {
-        _animator.SetTrigger("idle2");
+        //_animator.SetTrigger("idle2");
+        _animationController.Play("idle2", () =>
+        {
+            KickState();
+        });
     }
 
     void KickState()
     {
-        _animator.SetTrigger("idle5");
+        //_animator.SetTrigger("idle5");
+        _animationController.Play("idle5", () =>
+        {
+            IdleState();
+        });
     }
 }

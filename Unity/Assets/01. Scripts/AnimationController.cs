@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AnimationController : MonoBehaviour
 {
-    public Character _character;
+    [SerializeField] Animator _animator;
 
     // Start is called before the first frame update
     void Start()
@@ -20,21 +20,24 @@ public class AnimationController : MonoBehaviour
 
     // Animation Event
 
+    System.Action _endEvent = null;
+
+    public void Play(string triggerName, System.Action endEvent)
+    {
+        _animator.SetTrigger(triggerName);
+        _endEvent = endEvent;
+    }
+
+    public void AddEndEvent(System.Action endEvent)
+    {
+        _endEvent = endEvent;
+    }
+
     void AnimationEnd()
     {
-        Debug.Log("AnimationEnd");
-
-        switch(_character.GetState())
+        if(null != _endEvent)
         {
-            case Character.eState.IDLE:
-                _character.ChangeState(Character.eState.WAIT);
-                break;
-            case Character.eState.WAIT:
-                _character.ChangeState(Character.eState.KICK);
-                break;
-            case Character.eState.KICK:
-                _character.ChangeState(Character.eState.IDLE);
-                break;
+            _endEvent();
         }
     }
 }
