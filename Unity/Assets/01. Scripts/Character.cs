@@ -10,15 +10,16 @@ public class Character : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        /*
-        _animationController.AddEndEvent(()=>
+        _stateDic.Add(eState.IDLE, new IdleState());
+        _stateDic.Add(eState.WAIT, new WaitState());
+        _stateDic.Add(eState.KICK, new KickState());
+        
+        for (int i=0; i< _stateDic.Count; i++)
         {
-            Debug.Log("Animation Test");
-            // Idle -> Wait
-            // Wait -> Kick
-            // Kick -> Idle
-        });
-        */
+            eState state = (eState)i;
+            _stateDic[state].SetCharacter(this);
+        }
+
         ChangeState(eState.IDLE);
     }
 
@@ -26,57 +27,40 @@ public class Character : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        UpdateState();
     }
 
     // 상태
 
-    enum eState
+    public enum eState
     {
         IDLE,
         WAIT,
         KICK,
     }
     
-    void ChangeState(eState state)
+    public void ChangeState(eState state)
     {
-        switch (state)
-        {
-            case eState.IDLE:
-                IdleState();
-                break;
-            case eState.WAIT:
-                WaitState();
-                break;
-            case eState.KICK:
-                KickState();
-                break;
-        }
+        _state = _stateDic[state];
+        _state.Start();
     }
 
-    void IdleState()
+    void UpdateState()
     {
-        //_animator.SetTrigger("idle1");
-        _animationController.Play("idle1", () =>
-        {
-            WaitState();
-        });
+        _state.Update();
     }
 
-    void WaitState()
-    {
-        //_animator.SetTrigger("idle2");
-        _animationController.Play("idle2", () =>
-        {
-            KickState();
-        });
-    }
 
-    void KickState()
+    // State
+
+    Dictionary<eState, State> _stateDic = new Dictionary<eState, State>();
+    State _state = null;
+
+
+    // Animation
+
+    public void PlayAnimation(string trigger, System.Action endCallback)
     {
-        //_animator.SetTrigger("idle5");
-        _animationController.Play("idle5", () =>
-        {
-            IdleState();
-        });
+        _animationController.Play(trigger, endCallback);
     }
 }
