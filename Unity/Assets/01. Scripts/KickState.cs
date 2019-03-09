@@ -6,7 +6,7 @@ public class KickState : State
 {
     override public void Start()
     {
-        _character.PlayAnimation("idle5", () =>
+        _character.PlayAnimation("kick", () =>
         {
             _character.ChangeState(Character.eState.IDLE);
         });

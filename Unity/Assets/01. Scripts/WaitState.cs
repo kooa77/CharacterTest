@@ -6,7 +6,7 @@ public class WaitState : State
 {
     override public void Start()
     {
-        _character.PlayAnimation("idle2", () =>
+        _character.PlayAnimation("wait", () =>
         {
             _character.ChangeState(Character.eState.KICK);
         });

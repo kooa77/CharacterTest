@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class AnimationController : MonoBehaviour
 {
-    [SerializeField] Animator _animator;
+    Animator _animator;
+
+    void Awake()
+    {
+        _animator = gameObject.GetComponent<Animator>();
+    }
 
     // Start is called before the first frame update
     void Start()
