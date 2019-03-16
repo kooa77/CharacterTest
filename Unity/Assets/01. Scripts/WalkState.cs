@@ -7,6 +7,6 @@ public class WalkState : State
     override public void Start()
     {
         _character.PlayAnimation("walk", null);
-        _character.StartWalk(0.5f);
+        _character.StartWalk(1.5f);
     }
 }

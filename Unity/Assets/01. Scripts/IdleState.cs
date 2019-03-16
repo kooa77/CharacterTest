@@ -8,7 +8,8 @@ public class IdleState : State
     {
         _character.PlayAnimation("idle", () =>
         {
-            _character.ChangeState(Character.eState.WAIT);
+            _character.ChangeState(Character.eState.PATROL);
+            //_character.ChangeState(Character.eState.WAIT);
         });
     }
 }

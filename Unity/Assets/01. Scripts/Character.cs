@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    // CharacterController를 _animator 에 세팅
     [SerializeField] AnimationController _animationController;
+    [SerializeField] List<GameObject> _wayPointList;
 
     void Awake()
     {
@@ -19,6 +19,7 @@ public class Character : MonoBehaviour
         _stateDic.Add(eState.WAIT, new WaitState());
         _stateDic.Add(eState.KICK, new KickState());
         _stateDic.Add(eState.WALK, new WalkState());
+        _stateDic.Add(eState.PATROL, new PatrolState());
 
         for (int i=0; i< _stateDic.Count; i++)
         {
@@ -26,7 +27,7 @@ public class Character : MonoBehaviour
             _stateDic[state].SetCharacter(this);
         }
 
-        ChangeState(eState.WALK);
+        ChangeState(eState.IDLE);
     }
     
     // Update is called once per frame
@@ -44,6 +45,7 @@ public class Character : MonoBehaviour
         WAIT,
         KICK,
         WALK,
+        PATROL,
     }
     
     public void ChangeState(eState state)
@@ -76,19 +78,70 @@ public class Character : MonoBehaviour
 
     CharacterController _characterController;
     float _moveSpeed = 0.0f;
+    Vector3 _destPoint;
 
     void UpdateMove()
     {
-        Vector3 moveDirection = Vector3.forward;
+        Vector3 moveDirection = GetMoveDirection();
         Vector3 moveVelocity = moveDirection * _moveSpeed;
         Vector3 gravityVelocity = Vector3.down * 9.8f;  // 중력
 
         Vector3 finalVelocty = (moveVelocity + gravityVelocity) * Time.deltaTime;
         _characterController.Move(finalVelocty);
+
+        // 현재 위치와 목적지 까지의 거리를 계산해서
+        // 적절한 범위 내에 들어오면 스톱.
+        if(0.0f < _moveSpeed)
+        {
+            Vector3 charPos = transform.position;
+            Vector3 curPos = new Vector3(charPos.x, 0.0f, charPos.z);
+            Vector3 destPos = new Vector3(_destPoint.x, 0.0f, _destPoint.z);
+            float distance = Vector3.Distance(curPos, destPos);
+            if(distance < 0.5f)
+            {
+                _moveSpeed = 0.0f;
+                ChangeState(eState.IDLE);
+            }
+        }
     }
 
     public void StartWalk(float speed)
     {
         _moveSpeed = speed;
+    }
+
+    public Vector3 GetWayPoint(int index)
+    {
+        return _wayPointList[index].transform.position;
+    }
+
+    public Vector3 GetRandomWayPoint()
+    {
+        int index = Random.Range(0, _wayPointList.Count);
+        return GetWayPoint(index);
+    }
+
+    public int GetWayPointCount()
+    {
+        return _wayPointList.Count;
+    }
+
+    public void SetDestination(Vector3 destPoint)
+    {
+        _destPoint = destPoint;
+    }
+
+    Vector3 GetMoveDirection()
+    {
+        // (목적위치 - 현재 위치) 노멀라이즈
+        Vector3 charPos = transform.position;
+        Vector3 curPos = new Vector3(charPos.x, 0.0f, charPos.z);
+        Vector3 destPos = new Vector3(_destPoint.x, 0.0f, _destPoint.z);
+        Vector3 direction = (destPos - curPos).normalized;
+
+        Vector3 lookPos = new Vector3(_destPoint.x, charPos.y, _destPoint.z);
+        transform.LookAt(lookPos);
+
+        return direction;
     }
 }
