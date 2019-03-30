@@ -7,6 +7,8 @@ public class Character : MonoBehaviour
     [SerializeField] AnimationController _animationController;
     [SerializeField] List<GameObject> _wayPointList;
 
+    int _meetCount = 0;
+
     void Awake()
     {
         _characterController = gameObject.GetComponent<CharacterController>();
@@ -22,6 +24,7 @@ public class Character : MonoBehaviour
         _stateDic.Add(eState.RUN, new RunState());
         _stateDic.Add(eState.SLIDE, new SlideState());
         _stateDic.Add(eState.PATROL, new PatrolState());
+        _stateDic.Add(eState.DEATH, new DeathState());
 
         for (int i=0; i< _stateDic.Count; i++)
         {
@@ -35,13 +38,29 @@ public class Character : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateState();
-        UpdateMove();
+        if(eState.DEATH != _stateType)
+        {
+            UpdateState();
+            UpdateMove();
+            UpdateDeath();
+        }        
     }
 
     void OnTriggerEnter(Collider other)
     {
-        switch(_stateType)
+        if (other.gameObject.Equals(gameObject))
+            return;
+
+        _meetCount++;
+        if(10 < _meetCount)
+        {
+            ChangeState(eState.DEATH);
+            return;
+        }
+
+        _lifeTime = 0.0f;
+
+        switch (_stateType)
         {
             case eState.WALK:
             case eState.RUN:
@@ -49,6 +68,15 @@ public class Character : MonoBehaviour
                 ChangeState(eState.IDLE);
                 break;
         }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        // 나일 때는 패스
+        if (other.gameObject.Equals(gameObject))
+            return;
+
+        //_meetCount--;
     }
 
 
@@ -63,6 +91,7 @@ public class Character : MonoBehaviour
         RUN,
         SLIDE,
         PATROL,
+        DEATH,
     }
 
     eState _stateType = eState.IDLE;
@@ -113,12 +142,6 @@ public class Character : MonoBehaviour
         // 적절한 범위 내에 들어오면 스톱.
         if(0.0f < _moveSpeed)
         {
-            /*
-            Vector3 charPos = transform.position;
-            Vector3 curPos = new Vector3(charPos.x, 0.0f, charPos.z);
-            Vector3 destPos = new Vector3(_destPoint.x, 0.0f, _destPoint.z);
-            float distance = Vector3.Distance(curPos, destPos);
-            */
             float distance = GetDistanceToTarget();
             if (distance < 0.5f)
             {
@@ -189,5 +212,20 @@ public class Character : MonoBehaviour
                                     360.0f * Time.deltaTime);
         
         return direction;
+    }
+
+
+    // Death
+
+    float _deathTime = 20.0f;
+    float _lifeTime = 0.0f;
+
+    void UpdateDeath()
+    {
+        if(_deathTime <= _lifeTime)
+        {
+            ChangeState(eState.DEATH);
+        }
+        _lifeTime += Time.deltaTime;
     }
 }

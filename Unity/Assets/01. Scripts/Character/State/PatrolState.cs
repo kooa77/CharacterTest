@@ -8,8 +8,10 @@ public class PatrolState : State
 
     override public void Start()
     {
+        _prevWayPoint = _character.transform.position;
+        _prevWayPoint.y = 0.0f;
         Vector3 wayPoint = _character.GetRandomWayPoint();
-        
+
         if (wayPoint.Equals(_prevWayPoint))
         {
             _character.ChangeState(Character.eState.WAIT);
