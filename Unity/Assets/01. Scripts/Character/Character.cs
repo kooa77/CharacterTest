@@ -4,20 +4,55 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    [SerializeField] AnimationController _animationController;
+    [SerializeField] string _modelName;
+    AnimationController _animationController;
     [SerializeField] List<GameObject> _wayPointList;
+
+    [SerializeField] bool _isPlayer = false;
 
     int _meetCount = 0;
 
     void Awake()
     {
         _characterController = gameObject.GetComponent<CharacterController>();
+
+        // 자동화
+        {
+            // 1.
+            {
+                // 에디터에서 프리팹을 세팅
+                // 세팅한 프리팹을 객체로 생성
+                //Transform skinTransfrom;
+                //skinTransfrom.SetParent(transform);
+            }
+            // 2.
+            {
+                // 프리팹을 로딩한다. (캐릭터 이름 : BoxUnityChan)
+                //Transform skinTransfrom;
+                //skinTransfrom.SetParent(transform);
+            }
+
+            if ( 0 < transform.childCount)
+            {
+                Transform childTransform = transform.GetChild(0);
+                childTransform.gameObject.AddComponent<AnimationController>();
+                _animationController = childTransform.gameObject.GetComponent<AnimationController>();
+            }
+        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        _stateDic.Add(eState.IDLE, new IdleState());
+        if(true == _isPlayer)
+        {
+            _stateDic.Add(eState.IDLE, new PlayerIdleState());
+        }
+        else
+        {
+            _stateDic.Add(eState.IDLE, new IdleState());
+        }
+        
         _stateDic.Add(eState.WAIT, new WaitState());
         _stateDic.Add(eState.KICK, new KickState());
         _stateDic.Add(eState.WALK, new WalkState());
@@ -40,6 +75,26 @@ public class Character : MonoBehaviour
     {
         if(eState.DEATH != _stateType)
         {
+            // Input 처리
+            if(true == _isPlayer)
+            {
+                if(true == Input.GetMouseButtonUp(0))   // 유니티에서 마우스 입력 처리 방식
+                {
+                    Vector2 clickPos = Input.mousePosition;
+
+                    // 클릭한 화면좌표와 대응되는 월드 좌표 알아내야함.
+                    // Raycast 사용
+                    Ray ray = Camera.main.ScreenPointToRay(clickPos);
+                    RaycastHit hitInfo;
+                    if(true == Physics.Raycast(ray, out hitInfo, 100.0f, 1 << LayerMask.NameToLayer("Ground")))
+                    {
+                        Vector3 destPos = hitInfo.point;
+                        SetDestination(destPos);
+                        ChangeState(Character.eState.WALK);
+                    }
+                }
+            }
+
             UpdateState();
             UpdateMove();
             UpdateDeath();
